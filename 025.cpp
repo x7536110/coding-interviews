@@ -6,76 +6,89 @@
 #include <string>
 using namespace std;
 //输入一个复杂链表（每个节点中有节点值，以及两个指针，一个指向下一个节点，另一个特殊指针指向任意一个节点），返回结果为复制后复杂链表的head。（注意，输出结果中请不要返回参数中的节点引用，否则判题程序会直接返回空）
-
+#define nullptr NULL
+char Glevel = 'a';
 struct RandomListNode
 {
     int label;
+    char level;
     struct RandomListNode *next, *random;
-    RandomListNode(int x) : label(x), next(NULL), random(NULL)
+    RandomListNode(int x) : label(x), level(Glevel), next(NULL), random(NULL)
     {
     }
 };
-
+void print(RandomListNode *pHead)
+{
+    RandomListNode *p;
+    p = pHead;
+    while (p != nullptr)
+    {
+        cout << " " << p->label << " " << p->level;
+        p = p->next;
+    }
+    cout << endl;
+}
 class Solution
 {
 public:
     RandomListNode *Clone(RandomListNode *pHead)
     {
-        RandomListNode *newHead;
-        RandomListNode *newNode;
-        RandomListNode *p;
-        RandomListNode *q;
-        RandomListNode *t;
+        //Glevel = 'b';
+        RandomListNode *pOld;
+        RandomListNode *pNew;
+        RandomListNode *pTmp;
         if (pHead == nullptr)
+        {
             return nullptr;
-        newHead = new RandomListNode(pHead->label);
-        p = pHead;
-        q = newHead;
-        //clone一条无random关系的链表
-        while (p->next != nullptr)
-        {
-            q->next = new RandomListNode(p->next->label);
-            p = p->next;
-            q = q->next;
         }
-
-        //修改原链表指向，并记录迭代顺序
-        p = pHead;
-        q = newHead;
-        while (q->next != nullptr)
+        pOld = pHead;
+        while (pOld != nullptr)
         {
-            oldList.push_back(p);
-            t = p->next;
-            p->next = q;
-            p = t;
-            q = q->next;
+            pNew = new RandomListNode(pOld->label);
+            pNew->next = pOld->next;
+            pOld->next = pNew;
+            pOld = pNew->next;
         }
-        int i = 0;
-        p = oldList[i++];
-        q = newHead;
-        //重建random关系
-        while (q->next != nullptr)
+        pOld = pHead;
+        pNew = pOld->next;
+        while (pNew->next != nullptr)
         {
-            if (p->random != nullptr)
+            if (pOld->random != nullptr)
             {
-                p = p->random;
-                q->random = p->next;
+                pNew->random = pOld->random->next;
             }
-            p = oldList[i++];
-            q = q->next;
+            pOld = pNew->next;
+            pNew = pOld->next;
         }
-        for (int i = 0; i < oldList.size() - 1; i++)
+        pOld = pHead;
+        pTmp = pOld->next;
+        while (pOld->next->next != nullptr)
         {
-            oldList[i]->next = oldList[i + 1];
+            pNew = pOld->next;
+            pOld->next = pNew->next;
+            pNew->next = pOld->next->next;
+            pOld = pOld->next;
         }
-        oldList[oldList.size() - 1]->next = nullptr;
-        return newHead;
+        pOld->next = nullptr;
+        return pTmp;
     }
-
-private:
-    vector<RandomListNode *> oldList;
 };
+
 int main()
 {
+    RandomListNode *pHead;
+    RandomListNode *p;
+    pHead = new RandomListNode(99);
+    p = pHead;
+    for (int i = 0; i < 10; i++)
+    {
+        p->next = new RandomListNode(i);
+        p = p->next;
+    }
+    print(pHead);
+    Solution s;
+    p = s.Clone(pHead);
+    print(pHead);
+    print(p);
     return 0;
 }
